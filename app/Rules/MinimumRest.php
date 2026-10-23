@@ -5,25 +5,15 @@ declare(strict_types=1);
 namespace App\Rules;
 
 use App\Contracts\RosterStore;
+use App\Data\Shifts;
+use App\Data\Staff;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-/**
- * R02 · Descanso mínimo de 12 horas entre el final de un turno y el principio
- * del siguiente.
- *
- * CALCÚLALO a partir de App\Data\Shifts. Si escribes a mano qué combinaciones
- * fallan, funcionará hoy y dejará de funcionar en cuanto cambie una hora de la
- * tabla — y cuatro de las optativas reutilizan este cálculo.
- */
 final class MinimumRest implements ValidationRule
 {
     public const MINIMUM_MINUTES = 12 * 60;
 
-    /**
-     * Ya viene hecho: AssignShiftRequest te pasa el cuadrante actual y el día y
-     * el turno que se quieren asignar. En validate() recibes el id del empleado.
-     */
     public function __construct(
         private readonly RosterStore $store,
         private readonly string $day,
@@ -33,6 +23,51 @@ final class MinimumRest implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // TODO F04
+        if (!is_numeric($value)) {
+            return;
+        }
+
+        $employeeId = (int) $value;
+        $roster = $this->store->all();
+
+        $dayIndex = array_search($this->day, Shifts::DAYS, true);
+
+        if ($dayIndex === false) {
+            return;
+        }
+
+        $newStart = $dayIndex * 1440 + Shifts::startsAt($this->shift);
+        $newEnd = $dayIndex * 1440 + Shifts::endsAt($this->shift);
+
+        foreach ($roster as $day => $shifts) {
+            $otherDayIndex = array_search($day, Shifts::DAYS, true);
+
+            if ($otherDayIndex === false) {
+                continue;
+            }
+
+            foreach ($shifts as $otherShift => $assignedEmployeeId) {
+                if ($assignedEmployeeId !== $employeeId) {
+                    continue;
+                }
+
+                $otherStart = $otherDayIndex * 1440
+                    + Shifts::startsAt($otherShift);
+
+                $otherEnd = $otherDayIndex * 1440
+                    + Shifts::endsAt($otherShift);
+
+                if ($otherStart <= $newStart) {
+                    $rest = $newStart - $otherEnd;
+                } else {
+                    $rest = $otherStart - $newEnd;
+                }
+
+                if ($rest < self::MINIMUM_MINUTES) {
+                    $fail('El empleado necesita al menos 12 horas de descanso entre turnos.');
+                    return;
+                }
+            }
+        }
     }
 }

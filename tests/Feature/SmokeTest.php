@@ -16,7 +16,7 @@ final class SmokeTest extends TestCase
 {
     public function test_the_application_answers_on_the_home_page(): void
     {
-        $this->get('/')->assertOk();
+        $this->get('/')->assertRedirect('/cuadrante');
     }
 
     /**

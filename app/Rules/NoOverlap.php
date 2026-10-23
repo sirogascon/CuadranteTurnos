@@ -8,13 +8,8 @@ use App\Contracts\RosterStore;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-/** R01 · Un empleado no puede tener dos turnos el mismo día. */
 final class NoOverlap implements ValidationRule
 {
-    /**
-     * Ya viene hecho: AssignShiftRequest te pasa el cuadrante actual y el día y
-     * el turno que se quieren asignar. En validate() recibes el id del empleado.
-     */
     public function __construct(
         private readonly RosterStore $store,
         private readonly string $day,
@@ -24,6 +19,18 @@ final class NoOverlap implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // TODO F04
+        if (!is_numeric($value)) {
+            return;
+        }
+
+        $employeeId = (int) $value;
+        $roster = $this->store->all();
+
+        foreach ($roster[$this->day] ?? [] as $assignedEmployeeId) {
+            if ($assignedEmployeeId === $employeeId) {
+                $fail('Este empleado ya tiene un turno asignado ese día.');
+                return;
+            }
+        }
     }
 }
