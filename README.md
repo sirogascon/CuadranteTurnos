@@ -1,113 +1,76 @@
-# Proyecto base — ICB0006 · Acceso a datos
+# CuadranteTurnos
 
-Laravel 13 sobre PHP 8.4, con **Laravel Sail** y **sin base de datos**. Es el punto
-de partida de todo lo que harás en la sesión S02: de aquí sale la aplicación que se
-construye en vídeo, y de aquí salen también tus proyectos de los ejercicios.
+Aplicación web desarrollada con **PHP y Laravel** para gestionar la asignación semanal de turnos de trabajo, aplicar reglas de validación y consultar información sobre la cobertura del cuadrante.
 
-No hace nada todavía. Esa es la idea.
+Proyecto académico de Desarrollo de Aplicaciones Multiplataforma (DAM).
 
----
+## Funcionalidades
 
-## Arrancar
+- Consulta del listado de empleados y sus fichas individuales.
+- Visualización de un cuadrante semanal con tres turnos diarios.
+- Asignación y eliminación de empleados en los turnos.
+- Validaciones para evitar asignaciones incompatibles, incluyendo solapamientos y descansos mínimos.
+- Consulta de empleados elegibles para un turno.
+- Asignación automática de un empleado disponible.
+- Personalización del título del cuadrante.
+- Resumen de horas asignadas por empleado, cobertura de turnos y posibles incidencias.
 
-**Lo único que necesitas instalado es Docker.** PHP, Composer y las extensiones
-vienen dentro de la imagen; no instales nada más.
+## Tecnologías utilizadas
 
-> ### En Windows: la terminal va dentro de WSL2
->
-> `./vendor/bin/sail` es un script de bash que **no arranca desde PowerShell ni
-> desde Git Bash**: aborta con *"Unsupported operating system"*. Una sola vez:
->
-> 1. `wsl --install -d Ubuntu` desde PowerShell, y reinicia si te lo pide.
-> 2. **Abre Ubuntu y termina de configurarla** — te pedirá un usuario y una
->    contraseña de Linux. Hasta que no lo hagas, la distribución no está lista
->    aunque figure como instalada.
-> 3. Docker Desktop → *Settings → Resources → WSL integration* → activa esa
->    distribución → *Apply & restart*.
->
-> A partir de ahí, trabaja siempre desde la terminal de Ubuntu. En macOS y Linux
-> no hay nada de esto.
+- **PHP 8.4** — lógica de la aplicación.
+- **Laravel 13** — framework web, rutas, controladores y validaciones.
+- **Blade y CSS** — presentación de las interfaces.
+- **Laravel Sail y Docker** — entorno de ejecución.
+- **PHPUnit** — pruebas automatizadas.
+- **Git y GitHub** — control de versiones.
 
-Primero, una sola vez, para que exista `vendor/` y con él el propio `sail`:
+## Organización del proyecto
+
+- `app/Http/Controllers/`: gestión de peticiones de empleados y cuadrantes.
+- `app/Http/Requests/`: validación de datos de entrada.
+- `app/Rules/`: reglas de validación.
+- `app/Services/`: consulta de empleados elegibles.
+- `app/Stores/`: almacenamiento y gestión de las asignaciones.
+- `resources/views/`: interfaces desarrolladas con Blade.
+- `routes/web.php`: rutas de la aplicación.
+- `tests/Feature/`: pruebas de funcionalidades.
+
+## Persistencia
+
+El proyecto utiliza almacenamiento basado en sesiones de Laravel para gestionar las asignaciones del cuadrante.
+
+No incorpora una base de datos relacional.
+
+## Ejecución local
+
+Requisitos: Docker con Docker Compose y un entorno de terminal compatible con Laravel Sail.
 
 ```bash
-docker run --rm -e COMPOSER_PROCESS_TIMEOUT=0 -v "$(pwd):/var/www/html" -w /var/www/html \
-  laravelsail/php84-composer:latest \
-  composer install
+docker run --rm -e COMPOSER_PROCESS_TIMEOUT=0 -v "$(pwd):/var/www/html" -w /var/www/html laravelsail/php84-composer:latest composer install
 
 cp .env.example .env
-```
 
-Y a partir de aquí, siempre:
-
-```bash
 ./vendor/bin/sail up -d
 ./vendor/bin/sail artisan key:generate
 ```
 
-Abre <http://localhost>. Tienes que ver una página que dice **"El contenedor
-responde"**. Si la ves, tu entorno está bien y puedes empezar.
+Abrir `http://localhost` en el navegador.
 
-> **La primera construcción tarda entre cinco y diez minutos**, porque no descarga
-> una imagen: la construye. Las siguientes son segundos.
+## Pruebas
 
-### El atajo que querrás
+El repositorio contiene pruebas automatizadas de las principales funcionalidades, incluyendo la gestión de empleados, asignación de turnos, validaciones y funciones adicionales.
 
-En WSL (bash):
+Para ejecutarlas:
 
 ```bash
-echo "alias sail='sh \$([ -f sail ] && echo sail || echo vendor/bin/sail)'" >> ~/.bashrc
-source ~/.bashrc
+./vendor/bin/sail artisan test
 ```
 
-En macOS la terminal usa zsh, que no lee `~/.bashrc`:
+## Contexto
 
-```bash
-echo "alias sail='sh \$([ -f sail ] && echo sail || echo vendor/bin/sail)'" >> ~/.zshrc
-source ~/.zshrc
-```
+Proyecto realizado durante el CFGS de Desarrollo de Aplicaciones Multiplataforma, centrado en la lógica de negocio, validación de reglas, organización del código y pruebas de una aplicación web.
 
-**Regla mental: lo que antes empezaba por `php`, ahora empieza por `sail`.**
+**Autor:** Siro Gascón Ogasawara
 
-| Antes | Aquí |
-|---|---|
-| `php artisan route:list` | `sail artisan route:list` |
-| `php artisan make:controller X` | `sail artisan make:controller X` |
-| `php artisan test` | `sail test` |
-| `composer require X` | `sail composer require X` |
-
----
-
-## Qué hay dentro
-
-| Dónde | Qué es |
-|---|---|
-| `routes/web.php` | Una ruta, la de la página de prueba. Bórrala cuando escribas las tuyas |
-| `resources/views/home.blade.php` | Esa página. Es lo primero que vas a sustituir |
-| `public/css/app.css` | El estilo, servido sin compilar nada |
-| `compose.yaml` | El contenedor: PHP 8.4 y **ningún servicio más** |
-| `.env.example` | La plantilla de configuración. **`.env` no se sube al repositorio, `.env.example` sí** |
-| `tests/` | Vacío de pruebas, con la infraestructura lista para las tuyas |
-
----
-
-## Para empezar tu proyecto
-
-Copia esta carpeta con el nombre que le toque, entra en ella y cámbiale el
-nombre a la aplicación en tu `.env`:
-
-```
-APP_NAME=Club
-```
-
-Arráncala igual que arriba:
-
-```bash
-sail up -d
-sail artisan key:generate
-```
-
-Si la base sigue arrancada, párala antes con `sail down` desde su carpeta: las
-dos quieren el puerto 80, y solo una puede tenerlo.
 
 Haz un commit en cuanto la página de prueba te responda. Ese es tu punto cero.
