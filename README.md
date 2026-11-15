@@ -15,6 +15,23 @@ Proyecto académico de Desarrollo de Aplicaciones Multiplataforma (DAM).
 - Personalización del título del cuadrante.
 - Resumen de horas asignadas por empleado, cobertura de turnos y posibles incidencias.
 
+## Capturas de pantalla
+
+### Cuadrante semanal
+![Cuadrante semanal](docs/images/01-cuadrante-semanal.png)
+
+### Gestión de empleados
+![Plantilla de empleados](docs/images/02-plantilla-empleados.png)
+
+### Validación de descansos
+![Validación de descanso](docs/images/03-validacion-descanso.png)
+
+### Resumen de turnos
+![Resumen de turnos](docs/images/04-resumen-turnos.png)
+
+### Empleados elegibles
+![Empleados elegibles](docs/images/05-empleados-elegibles.png)
+
 ## Tecnologías utilizadas
 
 - **PHP 8.4** — lógica de la aplicación.
